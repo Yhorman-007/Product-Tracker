@@ -14,6 +14,7 @@ from ..services.email_service import send_recovery_email
 router = APIRouter()
 print("--- [AUTH] Router Initialized ---")
 
+# Este endpoint procesa el inicio de sesión del usuario y le otorga un token de acceso JWT temporal
 @router.post("/login/access-token", response_model=Token)
 def login_access_token(
     db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()
@@ -53,6 +54,7 @@ def login_access_token(
         "token_type": "bearer",
     }
 
+# Este endpoint permite registrar un nuevo usuario en el sistema de forma pública
 @router.post("/signup", response_model=UserSchema)
 def signup(user_in: UserCreate, db: Session = Depends(get_db)) -> Any:
     """
@@ -82,7 +84,6 @@ def signup(user_in: UserCreate, db: Session = Depends(get_db)) -> Any:
             email=email,
             hashed_password=security.get_password_hash(user_in.password),
             full_name=user_in.full_name,
-            is_admin=False, # Default to regular user
             is_active=True,
         )
         db.add(db_obj)
@@ -101,6 +102,7 @@ def signup(user_in: UserCreate, db: Session = Depends(get_db)) -> Any:
             detail=f"Error interno del servidor durante el registro: {str(e)}"
         )
 
+# Este endpoint maneja la solicitud de recuperación de contraseña y envía un correo con el token
 @router.post("/password-recovery")
 def recover_password(request: PasswordResetRequest, db: Session = Depends(get_db)) -> Any:
     """
@@ -139,6 +141,7 @@ def recover_password(request: PasswordResetRequest, db: Session = Depends(get_db
             detail=f"Internal Server Error: {str(e)}"
         )
 
+# Este endpoint restablece la contraseña evaluando la validez del token recibido por correo
 @router.post("/reset-password")
 def reset_password(request: PasswordReset, db: Session = Depends(get_db)) -> Any:
     """

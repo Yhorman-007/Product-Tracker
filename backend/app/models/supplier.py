@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
 
+# Este modelo representa a los proveedores de productos del sistema y sus datos de contacto
 class Supplier(Base):
     """
     Supplier/Proveedor model
@@ -20,5 +21,5 @@ class Supplier(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    products = relationship("Product", back_populates="supplier")
+    product_associations = relationship("ProductSupplier", back_populates="supplier", cascade="all, delete-orphan")
     purchase_orders = relationship("PurchaseOrder", back_populates="supplier")

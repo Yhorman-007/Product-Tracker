@@ -10,7 +10,9 @@ export const useSearch = () => {
     return context;
 };
 
+// Proveedor general de búsqueda, utilizado por Sidebar para filtrar globalmente sin pasar prop-drilling
 export const SearchProvider = ({ children }) => {
+    // useState: Contiene el String tecleado por el usuario en el NavBar superior
     const [searchTerm, setSearchTerm] = useState('');
 
     return (

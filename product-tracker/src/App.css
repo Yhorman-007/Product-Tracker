@@ -1,3 +1,4 @@
+/* Estilos del contenedor principal de la aplicación */
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -5,6 +6,7 @@
   text-align: center;
 }
 
+/* Estilos y animaciones del logo principal */
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -33,10 +35,12 @@
   }
 }
 
+/* Estilos para el tipo de contenedor principal (tarjeta) */
 .card {
   padding: 2em;
 }
 
+/* Estilos para enlaces de documentación u orientativos */
 .read-the-docs {
   color: #888;
 }

@@ -1,28 +1,52 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useInventory } from '../context/InventoryContext';
 import { useSearch } from '../context/SearchContext';
 import { useNotification } from '../context/NotificationContext';
-import { Search, Plus, Minus, Trash2, ShoppingCart, Save, Calculator, X, Package } from 'lucide-react';
+import { Search, Plus, Minus, Trash2, ShoppingCart, Save, Calculator, X, Package, UserCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatCOP } from '../utils/formatters';
 import { generateReceiptPDF } from '../utils/pdfGenerator';
 import { useAuth } from '../context/AuthContext';
 import EmergencyAuthModal from '../components/common/EmergencyAuthModal';
+import ConfirmModal from '../components/ui/ConfirmModal';
 
+// Vista POS (Point of sale): Pantalla de facturación interactiva manejando carrito y cobros de mostrador
 const POS = () => {
-    const { products, cart, addToCart, removeFromCart, updateCartQty, clearCart, completeSale } = useInventory();
+    // Hooks: Obtiene acceso al estado de carrito e inventario administrado por InventoryContext
+    const { products, cart, addToCart, removeFromCart, updateCartQty, clearCart, completeSale, clients } = useInventory();
     const { isAdmin } = useAuth();
     const { showNotification } = useNotification();
     const { searchTerm, setSearchTerm } = useSearch();
+    // useState: Manejo de montos locales correspondientes al proceso de pago en caja
     const [discount, setDiscount] = useState(0); // Percentage
     const [amountTendered, setAmountTendered] = useState('');
+    const [selectedClientId, setSelectedClientId] = useState(null);
     const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
     const [emergencyAuthItem, setEmergencyAuthItem] = useState(null);
+    const [isClearCartConfirmOpen, setIsClearCartConfirmOpen] = useState(false);
+    const [applyIVA, setApplyIVA] = useState(true);
 
-    // Get tax config from localStorage
-    const taxConfig = useMemo(() => {
-        const saved = localStorage.getItem('taxConfig');
-        return saved ? JSON.parse(saved) : { iva: 0 };
+    const [taxConfig, setTaxConfig] = useState({ iva: 19 });
+
+    useEffect(() => {
+        const loadConfig = () => {
+            const saved = localStorage.getItem('businessConfig');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                setTaxConfig({ iva: parseFloat(parsed.iva) || 19 });
+            } else {
+                // Compatibility for old systems
+                const oldTax = localStorage.getItem('taxConfig');
+                if (oldTax) {
+                    const parsedOld = JSON.parse(oldTax);
+                    setTaxConfig({ iva: parseFloat(parsedOld.iva) || 19 });
+                }
+            }
+        };
+
+        loadConfig();
+        window.addEventListener('storage', loadConfig);
+        return () => window.removeEventListener('storage', loadConfig);
     }, []);
 
     const filteredProducts = useMemo(() => {
@@ -37,23 +61,37 @@ const POS = () => {
     }, [products, searchTerm]);
 
     const subtotal = useMemo(() => {
-        return cart.reduce((acc, item) => acc + ((item.price_sale || 0) * item.qty), 0);
+        return Math.round(cart.reduce((acc, item) => acc + ((item.price_sale || 0) * item.qty), 0));
     }, [cart]);
 
+    // IVA is now INCLUDED in the price (Colombia standard)
+    // Formula: Total - (Total / (1 + IVA%))
     const taxAmount = useMemo(() => {
-        return (subtotal * (taxConfig.iva / 100));
-    }, [subtotal, taxConfig.iva]);
+        if (!applyIVA) return 0;
+        const ivaRate = (taxConfig.iva || 0) / 100;
+        return Math.round(subtotal - (subtotal / (1 + ivaRate)));
+    }, [subtotal, taxConfig.iva, applyIVA]);
 
     const total = useMemo(() => {
-        const withTax = subtotal + taxAmount;
-        return withTax * (1 - discount / 100);
-    }, [subtotal, taxAmount, discount]);
+        const discountFactor = 1 - (discount / 100);
+        const baseTotal = subtotal * discountFactor;
+
+        // If IVA is included but toggled OFF, we deduct the tax from the price
+        if (!applyIVA && taxConfig.iva > 0) {
+            const ivaRate = taxConfig.iva / 100;
+            return Math.round(baseTotal / (1 + ivaRate));
+        }
+
+        return Math.round(baseTotal);
+    }, [subtotal, discount, applyIVA, taxConfig.iva]);
 
     const change = useMemo(() => {
         const tendered = parseFloat(amountTendered) || 0;
-        return (tendered - total).toFixed(2);
+        const diff = tendered - total;
+        return Math.max(0, Math.round(diff));
     }, [amountTendered, total]);
 
+    // Fetch Final: Genera venta definitiva mediante contexto (completeSale) tras validar saldo recibido vs total
     const handleCheckout = async () => {
         if (!amountTendered || parseFloat(amountTendered) < total) {
             showNotification("¡Monto insuficiente!", "warning");
@@ -62,10 +100,13 @@ const POS = () => {
 
         const proceedWithSale = async () => {
             try {
-                const saleResult = await completeSale(total, discount, 'Efectivo'); // Default to Cash for now
+                const discountAmount = Math.round(subtotal * (discount / 100));
+                const currentTaxRate = applyIVA ? (taxConfig.iva || 0) : 0;
+                const saleResult = await completeSale(total, discountAmount, 'Efectivo', currentTaxRate, taxAmount, selectedClientId);
                 setIsCheckoutModalOpen(false);
                 setAmountTendered('');
                 setDiscount(0);
+                setSelectedClientId(null);
                 showNotification("¡Venta completada exitosamente!", "success");
 
                 // Ask if user wants PDF or generate it automatically
@@ -173,9 +214,30 @@ const POS = () => {
                         Venta Actual
                     </h2>
                     <div className="flex gap-2">
-                        <button onClick={clearCart} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Limpiar Carrito">
+                        <button
+                            onClick={() => setIsClearCartConfirmOpen(true)}
+                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Limpiar Carrito"
+                        >
                             <Trash2 className="w-4 h-4" />
                         </button>
+                    </div>
+                </div>
+
+                {/* Client Selection (RF47) */}
+                <div className="px-5 py-3 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5">
+                    <div className="flex items-center gap-3">
+                        <UserCheck className="w-4 h-4 text-indigo-500" />
+                        <select
+                            value={selectedClientId || ''}
+                            onChange={(e) => setSelectedClientId(e.target.value ? parseInt(e.target.value) : null)}
+                            className="flex-1 bg-transparent text-sm font-bold text-slate-700 dark:text-slate-300 outline-none cursor-pointer"
+                        >
+                            <option value="" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">Consumidor final</option>
+                            {clients.map(client => (
+                                <option key={client.id} value={client.id} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">{client.name}</option>
+                            ))}
+                        </select>
                     </div>
                 </div>
 
@@ -240,7 +302,18 @@ const POS = () => {
                             />
                         </div>
                         <div className="flex justify-between items-center text-xs">
-                            <span className="text-slate-500 font-medium">IVA ({taxConfig.iva}%)</span>
+                            <div className="flex items-center gap-2">
+                                <label className="relative inline-flex items-center cursor-pointer scale-75 -ml-1">
+                                    <input
+                                        type="checkbox"
+                                        className="sr-only peer"
+                                        checked={applyIVA}
+                                        onChange={() => setApplyIVA(!applyIVA)}
+                                    />
+                                    <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-emerald-500"></div>
+                                </label>
+                                <span className="text-slate-500 font-medium">IVA ({applyIVA ? taxConfig.iva : 0}% {taxConfig.iva > 0 ? 'Incluido' : ''})</span>
+                            </div>
                             <span className="text-slate-700 dark:text-slate-300 font-bold">{formatCOP(taxAmount)}</span>
                         </div>
                         <div className="flex justify-between text-2xl font-black text-slate-900 dark:text-slate-100 pt-4 border-t border-slate-100 dark:border-white/5">
@@ -345,6 +418,20 @@ const POS = () => {
                 onAuthorized={() => emergencyAuthItem?.callback()}
                 actionTitle={emergencyAuthItem?.title}
                 actionDescription={emergencyAuthItem?.description}
+            />
+
+            <ConfirmModal
+                isOpen={isClearCartConfirmOpen}
+                onClose={() => setIsClearCartConfirmOpen(false)}
+                onConfirm={() => {
+                    clearCart();
+                    showNotification('Carrito vaciado', 'info');
+                    setIsClearCartConfirmOpen(false);
+                }}
+                isDestructive={true}
+                title="¿Vaciar Carrito?"
+                message="¿Estás seguro de que deseas eliminar todos los productos del carrito actual?"
+                confirmText="Sí, vaciar"
             />
         </div>
     );

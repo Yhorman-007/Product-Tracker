@@ -10,30 +10,42 @@ const icons = {
 };
 
 const styles = {
-    success: 'bg-emerald-50 border-emerald-100 text-emerald-800',
-    error: 'bg-red-50 border-red-100 text-red-800',
-    warning: 'bg-amber-50 border-amber-100 text-amber-800',
-    info: 'bg-blue-50 border-blue-100 text-blue-800'
+    success: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500 shadow-emerald-500/10',
+    error: 'bg-red-500/10 border-red-500/20 text-red-500 shadow-red-500/10',
+    warning: 'bg-amber-500/10 border-amber-500/20 text-amber-500 shadow-amber-500/10',
+    info: 'bg-blue-500/10 border-blue-500/20 text-blue-500 shadow-blue-500/10'
 };
 
 const Toast = ({ message, type = 'info', onClose }) => {
     return (
         <motion.div
-            initial={{ opacity: 0, x: 100, scale: 0.9 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
+            initial={{ opacity: 0, x: 20, y: 0, scale: 0.95 }}
+            animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-            className={`flex items-center gap-3 p-4 rounded-xl border shadow-lg backdrop-blur-md min-w-[300px] max-w-md ${styles[type]}`}
+            className={`flex items-center gap-4 p-5 rounded-2xl border backdrop-blur-xl shadow-2xl min-w-[320px] max-w-md ${styles[type]} relative overflow-hidden`}
         >
-            <div className="flex-shrink-0">
+            <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-transparent pointer-events-none" />
+            <div className="flex-shrink-0 relative z-10">
                 {icons[type]}
             </div>
-            <p className="flex-1 text-sm font-medium">{message}</p>
+            <p className="flex-1 text-sm font-bold relative z-10">{message}</p>
             <button
                 onClick={onClose}
-                className="p-1 hover:bg-black/5 rounded-lg transition-colors"
+                className="p-1 hover:bg-black/5 rounded-lg transition-colors relative z-10"
             >
                 <X className="w-4 h-4 opacity-50" />
             </button>
+
+            {/* Progress Bar */}
+            <motion.div
+                initial={{ scaleX: 1 }}
+                animate={{ scaleX: 0 }}
+                transition={{ duration: 5, ease: "linear" }}
+                className={`absolute bottom-0 left-0 right-0 h-1 origin-left ${type === 'success' ? 'bg-emerald-500' :
+                        type === 'error' ? 'bg-red-500' :
+                            type === 'warning' ? 'bg-amber-500' : 'bg-blue-500'
+                    }`}
+            />
         </motion.div>
     );
 };

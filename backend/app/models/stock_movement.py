@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
 
+# Este modelo registra cada movimiento de inventario (entradas, salidas, ajustes) de un producto
 class StockMovement(Base):
     """
     Stock movement tracking - all inventory changes

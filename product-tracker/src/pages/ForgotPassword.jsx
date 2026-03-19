@@ -62,27 +62,27 @@ const ForgotPassword = () => {
                         zIndex: success ? 10 : -1,
                     }}
                 >
-                    <div className="bg-white rounded-[2.5rem] shadow-2xl p-10 text-center border border-slate-100 h-full flex flex-col justify-center">
+                    <div className="glass-card rounded-[2.5rem] shadow-2xl p-10 text-center h-full flex flex-col justify-center">
                         {/* Check icon */}
                         <div className="inline-flex p-6 rounded-full bg-emerald-100 text-emerald-600 mb-8 border-8 border-emerald-50 mx-auto">
                             <CheckCircle2 className="w-14 h-14" />
                         </div>
-                        <h1 className="text-3xl font-black text-slate-900 mb-3 tracking-tight">
+                        <h1 className="text-3xl font-black text-emerald-600 dark:text-emerald-400 mb-3 tracking-tight">
                             ¡Correo Enviado!
                         </h1>
-                        <p className="text-slate-500 mb-2 font-medium leading-relaxed">
+                        <p className="text-slate-600 dark:text-slate-300 mb-2 font-medium leading-relaxed">
                             Hemos enviado un enlace seguro a:
                         </p>
-                        <p className="text-slate-900 font-black text-base mb-8 bg-slate-50 px-4 py-2 rounded-xl break-all mx-auto max-w-xs">
+                        <p className="text-slate-900 dark:text-white font-black text-base mb-8 bg-slate-50 dark:bg-slate-800/50 px-4 py-2 rounded-xl break-all mx-auto max-w-xs">
                             {email || '—'}
                         </p>
-                        <p className="text-slate-400 text-sm mb-8 font-medium">
+                        <p className="text-slate-500 dark:text-slate-400 text-sm mb-8 font-medium">
                             Revisa tu bandeja de entrada y sigue las instrucciones para recuperar tu acceso.
                         </p>
                         {/* Manual navigation – no auto-redirect to avoid any unmounting glitch */}
                         <Link
                             to="/login"
-                            className="w-full inline-flex items-center justify-center py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-700 transition-colors gap-2"
+                            className="w-full inline-flex items-center justify-center py-4 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 transition-colors gap-2"
                         >
                             <ArrowLeft className="w-4 h-4" /> Volver al Inicio de Sesión
                         </Link>
@@ -103,13 +103,13 @@ const ForgotPassword = () => {
                         zIndex: success ? -1 : 10,
                     }}
                 >
-                    <div className="bg-white rounded-[2.5rem] shadow-2xl p-10 border border-slate-100 h-full">
+                    <div className="glass-card rounded-[2.5rem] shadow-2xl p-10 h-full">
                         <div className="text-center mb-10">
                             <div className="inline-flex p-5 rounded-3xl bg-blue-600/10 text-blue-600 mb-6">
                                 <ShieldQuestion className="w-10 h-10" />
                             </div>
-                            <h1 className="text-4xl font-black text-slate-900 mb-2 leading-tight">Recuperar Acceso</h1>
-                            <p className="text-slate-500 font-medium leading-relaxed px-4">
+                            <h1 className="text-4xl font-black text-slate-900 dark:text-white mb-2 leading-tight">Recuperar Acceso</h1>
+                            <p className="text-slate-600 dark:text-slate-300 font-medium leading-relaxed px-4">
                                 Ingresa tu email para recibir un enlace de recuperación seguro.
                             </p>
                         </div>
@@ -124,7 +124,7 @@ const ForgotPassword = () => {
                                     <input
                                         type="email"
                                         required
-                                        className="w-full pl-14 pr-5 py-4 bg-slate-50 border border-slate-200 rounded-[1.5rem] focus:ring-4 focus:ring-blue-600/10 focus:border-blue-600 outline-none transition-all placeholder:text-slate-300"
+                                        className="w-full pl-14 pr-5 py-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-[1.5rem] focus:ring-4 focus:ring-blue-600/10 focus:border-blue-600 outline-none transition-all placeholder:text-slate-400 text-slate-900 dark:text-white"
                                         placeholder="tu@negocio.com"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useMemo, useEffect } from 'react';
 import { createAuditLog } from '../utils/auditLogger';
 import { showLowStockNotification, showExpirationNotification } from '../utils/notifications';
-import { productsApi, reportsApi, suppliersApi, salesApi, stockApi, purchaseOrdersApi } from '../services/api';
+import { productsApi, reportsApi, suppliersApi, salesApi, stockApi, purchaseOrdersApi, auditLogsApi, clientsApi, returnsApi } from '../services/api';
 import { useAuth } from './AuthContext';
 import { useNotification } from './NotificationContext';
 import { useSearch } from './SearchContext';
@@ -16,8 +16,11 @@ export const useInventory = () => {
     return context;
 };
 
+// Proveedor massivo del inventario: Mantiene estado sincronizado global de productos, ventas y compras
 export const InventoryProvider = ({ children }) => {
     const { isAuthenticated } = useAuth();
+    const { showNotification } = useNotification();
+    // useState: Define listas clave recuperadas del backend para manipulación general
     const [products, setProducts] = useState([]);
     const [sales, setSales] = useState([]);
     const [cart, setCart] = useState([]);
@@ -26,14 +29,21 @@ export const InventoryProvider = ({ children }) => {
     const [stockMovements, setStockMovements] = useState([]);
     const [locations, setLocations] = useState([]);
     const [auditLogs, setAuditLogs] = useState([]);
+    const [clients, setClients] = useState([]);
+    const [returns, setReturns] = useState([]);
     const [onlineStatus, setOnlineStatus] = useState(navigator.onLine);
     const [loading, setLoading] = useState(false);
     const [topProducts, setTopProducts] = useState([]);
     const { searchTerm } = useSearch();
     const [stats, setStats] = useState({
         totalStockValue: 0,
+        totalCostValue: 0,
+        totalSaleValue: 0,
+        potentialProfit: 0,
+        netProfit: 0,
         dailySalesTotal: 0,
         totalSales: 0,
+        totalUnitsSold: 0,
         averageSale: 0
     });
 
@@ -46,19 +56,23 @@ export const InventoryProvider = ({ children }) => {
         );
     }, [products, searchTerm]);
 
+    // Fetch general: Recupera TODOS los datos paralelos desde el backend para reducir esperas
     // Fetch initial data from API
     const refreshData = async () => {
         if (!isAuthenticated) return;
         setLoading(true);
         try {
-            const [prodRes, suppliersRes, valuationRes, salesRes, poRes, salesListRes, topProductsRes] = await Promise.all([
+            const [prodRes, suppliersRes, valuationRes, salesRes, poRes, salesListRes, topProductsRes, auditRes, clientsRes, returnsRes] = await Promise.all([
                 productsApi.getAll(),
                 suppliersApi.getAll(),
                 reportsApi.getValuation(),
                 reportsApi.getSalesSummary(),
                 purchaseOrdersApi.getAll().catch(() => ({ data: [] })),
                 salesApi.getAll().catch(() => ({ data: [] })),
-                reportsApi.getTopProducts().catch(() => ({ data: [] }))
+                reportsApi.getTopProducts().catch(() => ({ data: [] })),
+                auditLogsApi.getAll().catch(() => ({ data: [] })),
+                clientsApi.getAll().catch(() => ({ data: [] })),
+                returnsApi.getAll().catch(() => ({ data: [] }))
             ]);
 
             setProducts(prodRes.data || []);
@@ -66,8 +80,15 @@ export const InventoryProvider = ({ children }) => {
             setPurchaseOrders(poRes.data || []);
             setSales(salesListRes.data || []);
             setTopProducts(topProductsRes.data || []);
+            setAuditLogs(auditRes.data || []);
+            setClients(clientsRes.data || []);
+            setReturns(returnsRes.data || []);
             setStats({
-                totalStockValue: valuationRes.data?.total_inventory_value || 0,
+                totalStockValue: valuationRes.data?.total_cost_value || 0,
+                totalCostValue: valuationRes.data?.total_cost_value || 0,
+                totalSaleValue: valuationRes.data?.total_sale_value || 0,
+                potentialProfit: valuationRes.data?.total_potential_profit || 0,
+                netProfit: salesRes.data?.net_profit || 0,
                 dailySalesTotal: salesRes.data?.daily_revenue || 0,
                 totalSales: salesRes.data?.total_sales || 0,
                 totalUnitsSold: salesRes.data?.total_units_sold || 0,
@@ -81,10 +102,12 @@ export const InventoryProvider = ({ children }) => {
         }
     };
 
+    // useEffect: Monitorea e invoca refreshData solo cuando el usuario se autentica
     useEffect(() => {
         refreshData();
     }, [isAuthenticated]);
 
+    // useEffect: Escuchador nativo para actualizar si hay pérdida de internet (offline)
     // Monitor online/offline status
     useEffect(() => {
         const handleOnline = () => setOnlineStatus(true);
@@ -99,6 +122,7 @@ export const InventoryProvider = ({ children }) => {
         };
     }, []);
 
+    // useEffect: Iterador que lanza notificaciones al momento si el stock cae a alerta roja
     // Monitor low stock and send notifications
     useEffect(() => {
         products.forEach(product => {
@@ -108,11 +132,13 @@ export const InventoryProvider = ({ children }) => {
         });
     }, [products]);
 
+    // Lógica para estructurar alarmas de inventario usando información cacheada de productos
     // Alerts Logic (RF17/24)
     const alerts = useMemo(() => {
         const activeProducts = products.filter(p => !p.archived);
         // Use the configurable threshold from Settings (default 5)
-        const globalThreshold = parseInt(localStorage.getItem('lowStockThreshold') || '5', 10);
+        const businessConfig = JSON.parse(localStorage.getItem('businessConfig') || '{}');
+        const globalThreshold = parseInt(businessConfig.lowStockThreshold || '5', 10);
         const lowStock = activeProducts.filter(p => p.stock <= p.min_stock || p.stock <= globalThreshold);
         const today = new Date();
         const thirtyDaysFromNow = new Date();
@@ -127,17 +153,30 @@ export const InventoryProvider = ({ children }) => {
         return { lowStock, expiringSoon };
     }, [products]);
 
+    // Helper to keep audit list in sync after actions without reloading everything
+    const refreshAuditLogs = async () => {
+        try {
+            const auditRes = await auditLogsApi.getAll();
+            setAuditLogs(auditRes.data || []);
+        } catch (error) {
+            console.error('Error refreshing audit logs:', error);
+        }
+    };
+
     // Gross Profit Calculation (RF08)
     const calculateGrossProfit = (purchasePrice, salePrice) => {
         if (!purchasePrice || !salePrice) return 0;
-        return (parseFloat(salePrice) - parseFloat(purchasePrice)).toFixed(2);
+        return Math.round(parseFloat(salePrice) - parseFloat(purchasePrice));
     };
 
+    // Fetch de Múltiples Operaciones relacionadas al CRUD y manipulaciones
     // Product Operations
     const addProduct = async (product) => {
         try {
             const response = await productsApi.create(product);
             setProducts(prev => [...prev, response.data]);
+            showNotification(`Producto "${response.data.name}" creado con éxito`, 'success');
+            refreshAuditLogs();
             return response.data;
         } catch (error) {
             console.error('Error adding product:', error);
@@ -149,6 +188,8 @@ export const InventoryProvider = ({ children }) => {
         try {
             const response = await productsApi.update(id, updates);
             setProducts(prev => prev.map(p => p.id === id ? response.data : p));
+            showNotification('Cambios guardados correctamente', 'success');
+            refreshAuditLogs();
             return response.data;
         } catch (error) {
             console.error('Error updating product:', error);
@@ -160,6 +201,8 @@ export const InventoryProvider = ({ children }) => {
         try {
             await productsApi.delete(id);
             setProducts(prev => prev.filter(p => p.id !== id));
+            showNotification('Producto eliminado permanentemente', 'success');
+            refreshAuditLogs();
         } catch (error) {
             console.error('Error deleting product:', error);
             throw error; // Propagate error to the component
@@ -170,6 +213,8 @@ export const InventoryProvider = ({ children }) => {
         try {
             const response = await productsApi.archive(id);
             setProducts(prev => prev.map(p => p.id === id ? response.data : p));
+            showNotification(`Producto ${response.data.archived ? 'archivado' : 'restaurado'}`, 'info');
+            refreshAuditLogs();
         } catch (error) {
             console.error('Error archiving product:', error);
             throw error;
@@ -183,10 +228,19 @@ export const InventoryProvider = ({ children }) => {
     const fetchProductMovements = async (productId) => {
         try {
             const response = await stockApi.getByProductId(productId);
-            setStockMovements(response.data);
             return response.data;
         } catch (error) {
             console.error('Error fetching product movements:', error);
+            throw error;
+        }
+    };
+
+    const fetchAllStockMovements = async () => {
+        try {
+            const response = await stockApi.getAll();
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching all movements:', error);
             throw error;
         }
     };
@@ -208,6 +262,8 @@ export const InventoryProvider = ({ children }) => {
         try {
             const response = await suppliersApi.create(supplier);
             setSuppliers(prev => [...prev, response.data]);
+            showNotification(`Proveedor "${response.data.name}" registrado con éxito`, 'success');
+            refreshAuditLogs();
             return response.data;
         } catch (error) {
             console.error('Error adding supplier:', error);
@@ -219,6 +275,8 @@ export const InventoryProvider = ({ children }) => {
         try {
             const response = await suppliersApi.update(id, updates);
             setSuppliers(prev => prev.map(s => s.id === id ? response.data : s));
+            showNotification('Proveedor actualizado correctamente', 'success');
+            refreshAuditLogs();
             return response.data;
         } catch (error) {
             console.error('Error updating supplier:', error);
@@ -230,8 +288,63 @@ export const InventoryProvider = ({ children }) => {
         try {
             await suppliersApi.delete(id);
             setSuppliers(prev => prev.filter(s => s.id !== id));
+            showNotification('Proveedor eliminado del sistema', 'success');
+            refreshAuditLogs();
         } catch (error) {
             console.error('Error deleting supplier:', error);
+            throw error;
+        }
+    };
+
+    // Client Operations (RF47)
+    const addClient = async (client) => {
+        try {
+            const response = await clientsApi.create(client);
+            setClients(prev => [...prev, response.data]);
+            showNotification(`Cliente "${response.data.name}" registrado`, 'success');
+            refreshAuditLogs();
+            return response.data;
+        } catch (error) {
+            console.error('Error adding client:', error);
+            throw error;
+        }
+    };
+
+    const updateClient = async (id, updates) => {
+        try {
+            const response = await clientsApi.update(id, updates);
+            setClients(prev => prev.map(c => c.id === id ? response.data : c));
+            showNotification('Cliente actualizado correctamente', 'success');
+            refreshAuditLogs();
+            return response.data;
+        } catch (error) {
+            console.error('Error updating client:', error);
+            throw error;
+        }
+    };
+
+    const deleteClient = async (id) => {
+        try {
+            await clientsApi.delete(id);
+            setClients(prev => prev.filter(c => c.id !== id));
+            showNotification('Cliente eliminado', 'info');
+            refreshAuditLogs();
+        } catch (error) {
+            console.error('Error deleting client:', error);
+            throw error;
+        }
+    };
+
+    // Return Operations (RF48)
+    const createReturn = async (returnData) => {
+        try {
+            const response = await returnsApi.create(returnData);
+            setReturns(prev => [response.data, ...prev]);
+            showNotification('Devolución procesada correctamente', 'success');
+            await refreshData();
+            return response.data;
+        } catch (error) {
+            console.error('Error creating return:', error);
             throw error;
         }
     };
@@ -250,9 +363,45 @@ export const InventoryProvider = ({ children }) => {
         }
     };
 
-    const receivePurchaseOrder = async (id) => {
+    // Catalogue operations
+    const getSupplierCatalogue = async (supplierId) => {
         try {
-            const response = await purchaseOrdersApi.receive(id);
+            const response = await suppliersApi.getCatalogue(supplierId);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching catalogue:', error);
+            throw error;
+        }
+    };
+
+    const addToCatalogue = async (supplierId, item) => {
+        try {
+            const response = await suppliersApi.addToCatalogue(supplierId, item);
+            await refreshData();
+            showNotification('Catálogo actualizado', 'success');
+            return response.data;
+        } catch (error) {
+            console.error('Error adding to catalogue:', error);
+            showNotification('Error al actualizar catálogo', 'error');
+            throw error;
+        }
+    };
+
+    const removeFromCatalogue = async (supplierId, productId) => {
+        try {
+            await suppliersApi.removeFromCatalogue(supplierId, productId);
+            await refreshData();
+            showNotification('Producto removido del catálogo', 'info');
+        } catch (error) {
+            console.error('Error removing from catalogue:', error);
+            showNotification('Error al remover del catálogo', 'error');
+            throw error;
+        }
+    };
+
+    const receivePurchaseOrder = async (id, receptionData) => {
+        try {
+            const response = await purchaseOrdersApi.receive(id, receptionData);
             setPurchaseOrders(prev => prev.map(p => p.id === id ? response.data : p));
             showNotification('Orden marcada como recibida. Stock actualizado.', 'success');
             await refreshData();
@@ -268,15 +417,25 @@ export const InventoryProvider = ({ children }) => {
         try {
             await purchaseOrdersApi.delete(id);
             setPurchaseOrders(prev => prev.filter(p => p.id !== id));
-            showNotification('Orden eliminada del historial', 'success');
+            showNotification('Orden de compra eliminada', 'info');
         } catch (error) {
             console.error('Error deleting purchase order:', error);
-            showNotification(error.response?.data?.detail || 'Error al eliminar', 'error');
+            showNotification('Error al eliminar orden de compra', 'error');
             throw error;
         }
     };
-
-    const { showNotification } = useNotification();
+    const togglePOPayment = async (id) => {
+        try {
+            const response = await purchaseOrdersApi.togglePayment(id);
+            setPurchaseOrders(prev => prev.map(p => p.id === id ? response.data : p));
+            showNotification(`Estado de pago actualizado para OC-${id}`, 'success');
+            return response.data;
+        } catch (error) {
+            console.error('Error toggling PO payment:', error);
+            showNotification('Error al actualizar estado de pago', 'error');
+            throw error;
+        }
+    };
 
     const addToCart = (product) => {
         if (product.stock <= 0) {
@@ -317,11 +476,15 @@ export const InventoryProvider = ({ children }) => {
     };
     const clearCart = () => setCart([]);
 
-    const completeSale = async (total, discount, paymentMethod) => {
+    // Fetch para concluir una venta definitiva empujando datos de checkout (carrito) hacia el backend
+    const completeSale = async (total, discount, paymentMethod, taxRate = 0, taxAmount = 0, clientId = null) => {
         const saleData = {
             total,
             discount,
             payment_method: paymentMethod,
+            tax_rate: taxRate,
+            tax_amount: taxAmount,
+            client_id: clientId,
             items: cart.map(item => ({
                 product_id: item.id,
                 quantity: item.qty,
@@ -346,9 +509,12 @@ export const InventoryProvider = ({ children }) => {
             products, addProduct, updateProduct, deleteProduct, archiveProduct,
             sales, cart, addToCart, removeFromCart, updateCartQty, clearCart, completeSale,
             suppliers, addSupplier, updateSupplier, deleteSupplier,
-            purchaseOrders, createPurchaseOrder, receivePurchaseOrder, deletePurchaseOrder,
-            stockMovements, createStockMovement, fetchProductMovements,
+            purchaseOrders, createPurchaseOrder, receivePurchaseOrder, deletePurchaseOrder, togglePOPayment,
+            getSupplierCatalogue, addToCatalogue, removeFromCatalogue,
+            stockMovements, createStockMovement, fetchProductMovements, fetchAllStockMovements,
             locations, auditLogs, alerts, calculateGrossProfit,
+            clients, addClient, updateClient, deleteClient,
+            returns, createReturn,
             totalStockValue: stats.totalStockValue,
             dailySalesTotal: stats.dailySalesTotal,
             totalUnitsSold: stats.totalUnitsSold,

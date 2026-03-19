@@ -11,14 +11,14 @@ export const generateReceiptPDF = (sale) => {
     const centerX = 40;
 
     // Get business data from localStorage
-    const businessData = JSON.parse(localStorage.getItem('businessProfile') || JSON.stringify({
-        name: 'PRODUCT TRACKER',
+    const businessData = JSON.parse(localStorage.getItem('businessConfig') || JSON.stringify({
+        businessName: 'PRODUCT TRACKER',
         nit: '123.456.789-0',
         address: 'MEDELLÍN, COLOMBIA'
     }));
 
     doc.setFontSize(14);
-    doc.text(businessData.name.toUpperCase(), centerX, 10, { align: "center" });
+    doc.text(businessData.businessName.toUpperCase(), centerX, 10, { align: "center" });
 
     doc.setFontSize(8);
     doc.text(`Nit: ${businessData.nit}`, centerX, 15, { align: "center" });
@@ -59,12 +59,20 @@ export const generateReceiptPDF = (sale) => {
     doc.setFontSize(8);
     const rightAlignX = 75;
 
-    const subtotal = sale.total + (sale.discount || 0);
-    doc.text("SUBTOTAL:", 45, finalY + 5);
-    doc.text(formatCOP(subtotal), rightAlignX, finalY + 5, { align: "right" });
+    // Use tax data from sale object
+    const taxRate = sale.tax_rate !== undefined ? sale.tax_rate : 0;
+    const taxAmount = sale.tax_amount !== undefined ? sale.tax_amount : 0;
 
-    doc.text("DESCUENTO:", 45, finalY + 10);
-    doc.text(formatCOP(sale.discount || 0), rightAlignX, finalY + 10, { align: "right" });
+    // Subtotal here is items total before discount
+    const itemsTotal = sale.items.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
+
+    doc.text("SUBTOTAL:", 45, finalY + 5);
+    doc.text(formatCOP(itemsTotal), rightAlignX, finalY + 5, { align: "right" });
+
+    if (sale.discount > 0) {
+        doc.text(`DESCUENTO:`, 45, finalY + 10);
+        doc.text(`-${formatCOP(sale.discount)}`, rightAlignX, finalY + 10, { align: "right" });
+    }
 
     doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
@@ -72,9 +80,17 @@ export const generateReceiptPDF = (sale) => {
 
     doc.setFontSize(8);
     doc.setFont("helvetica", "normal");
-    doc.text("¡Gracias por su compra!", centerX, finalY + 30, { align: "center" });
+
+    // Show IVA breakdown if rate > 0
+    if (taxRate > 0) {
+        doc.text(`IVA INCLUIDO (${taxRate}%):`, 45, finalY + 24);
+        doc.text(formatCOP(taxAmount), rightAlignX, finalY + 24, { align: "right" });
+    }
+
+    doc.setFontSize(8);
+    doc.text("¡Gracias por su compra!", centerX, finalY + 35, { align: "center" });
     doc.setFontSize(6);
-    doc.text("Régimen Simplificado - IVA No Incluido", centerX, finalY + 34, { align: "center" });
+    doc.text(`Régimen Común - ${taxRate > 0 ? "IVA Incluido" : "Sin IVA"}`, centerX, finalY + 39, { align: "center" });
 
     doc.save(`Recibo_Venta_${sale.id}.pdf`);
 };

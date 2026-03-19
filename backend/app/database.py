@@ -6,7 +6,8 @@ from app.config import settings
 # Create PostgreSQL engine
 print(f"DEBUG: Conectando a la base de datos: {settings.database_url}")
 engine = create_engine(
-    settings.database_url
+    settings.database_url,
+    connect_args={"connect_timeout": 10}
 )
 
 # Create session factory

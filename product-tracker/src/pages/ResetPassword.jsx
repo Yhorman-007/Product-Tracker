@@ -112,15 +112,15 @@ const ResetPassword = () => {
                         zIndex: success ? 10 : -1,
                     }}
                 >
-                    <div className="bg-white rounded-[2.5rem] shadow-2xl p-10 text-center border border-slate-100 h-full flex flex-col justify-center">
+                    <div className="glass-card rounded-[2.5rem] shadow-2xl p-10 text-center h-full flex flex-col justify-center">
                         {/* Check icon */}
                         <div className="inline-flex p-6 rounded-full bg-emerald-100 text-emerald-600 mb-8 border-8 border-emerald-50 mx-auto">
                             <CheckCircle2 className="w-14 h-14" />
                         </div>
-                        <h1 className="text-3xl font-black text-slate-900 mb-3 tracking-tight">
+                        <h1 className="text-3xl font-black text-emerald-600 dark:text-emerald-400 mb-3 tracking-tight">
                             ¡Contraseña Actualizada!
                         </h1>
-                        <p className="text-slate-500 mb-8 font-medium leading-relaxed">
+                        <p className="text-slate-600 dark:text-slate-300 mb-8 font-medium leading-relaxed">
                             Tu contraseña ha sido actualizada. Ya puedes acceder con tu nueva clave.
                         </p>
 
@@ -161,26 +161,26 @@ const ResetPassword = () => {
                         zIndex: success ? -1 : 10,
                     }}
                 >
-                    <div className="bg-white rounded-[2.5rem] shadow-2xl p-10 border border-slate-100 h-full overflow-y-auto">
+                    <div className="glass-card rounded-[2.5rem] shadow-2xl p-10 h-full overflow-y-auto">
                         <div className="text-center mb-10">
                             <div className="inline-flex p-5 rounded-3xl bg-indigo-600/10 text-indigo-600 mb-6">
                                 <ShieldCheck className="w-10 h-10" />
                             </div>
-                            <h1 className="text-4xl font-black text-slate-900 mb-2 leading-tight">Nueva Clave</h1>
-                            <p className="text-slate-500 font-medium leading-relaxed px-4">
+                            <h1 className="text-4xl font-black text-slate-900 dark:text-white mb-2 leading-tight">Nueva Clave</h1>
+                            <p className="text-slate-600 dark:text-slate-300 font-medium leading-relaxed px-4">
                                 Configura tu nueva contraseña para proteger tu negocio.
                             </p>
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="space-y-2">
-                                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-2">Nueva Clave</label>
+                                <label className="text-xs font-black text-slate-900 dark:text-slate-400 uppercase tracking-widest ml-2">Nueva Clave</label>
                                 <div className="relative">
                                     <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                     <input
                                         type="password"
                                         required
-                                        className="w-full pl-14 pr-5 py-4 bg-slate-50 border border-slate-200 rounded-[1.5rem] focus:ring-4 focus:ring-indigo-600/10 focus:border-indigo-600 outline-none transition-all"
+                                        className="w-full pl-14 pr-5 py-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-[1.5rem] focus:ring-4 focus:ring-indigo-600/10 focus:border-indigo-600 outline-none transition-all text-slate-900 dark:text-white"
                                         placeholder="••••••••"
                                         value={formData.password}
                                         onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -189,13 +189,13 @@ const ResetPassword = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-2">Confirmar Clave</label>
+                                <label className="text-xs font-black text-slate-900 dark:text-slate-400 uppercase tracking-widest ml-2">Confirmar Clave</label>
                                 <div className="relative">
                                     <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                     <input
                                         type="password"
                                         required
-                                        className="w-full pl-14 pr-5 py-4 bg-slate-50 border border-slate-200 rounded-[1.5rem] focus:ring-4 focus:ring-indigo-600/10 focus:border-indigo-600 outline-none transition-all"
+                                        className="w-full pl-14 pr-5 py-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-[1.5rem] focus:ring-4 focus:ring-indigo-600/10 focus:border-indigo-600 outline-none transition-all text-slate-900 dark:text-white"
                                         placeholder="••••••••"
                                         value={formData.confirmPassword}
                                         onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}

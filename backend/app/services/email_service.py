@@ -5,6 +5,7 @@ from app.config import settings
 
 from email.header import Header
 
+# Este servicio gestiona el envío de correos electrónicos transaccionales (ej. recuperación de contraseña)
 def send_recovery_email(email_to: str, token: str):
     """
     Sends a password recovery email using Gmail SMTP.
@@ -14,7 +15,7 @@ def send_recovery_email(email_to: str, token: str):
         print(f"DEBUG: Token for {email_to} is: {token}")
         return False, "SMTP credentials not configured"
 
-    # Create message
+    # Crear el mensaje de correo
     message = MIMEMultipart()
     message["From"] = settings.smtp_user
     message["To"] = email_to
@@ -22,7 +23,7 @@ def send_recovery_email(email_to: str, token: str):
     # Strictly ASCII subject for final test
     message["Subject"] = "Password Recovery - Product Tracker"
 
-    # Email body (Premium Table-Based ASCII - Phase 1)
+    # Cuerpo del correo electrónico en formato HTML (Premium Table-Based ASCII)
     reset_link = f"{settings.frontend_url}/reset-password?token={token}"
     body = f"""
     <!DOCTYPE html>
@@ -91,7 +92,7 @@ def send_recovery_email(email_to: str, token: str):
         return False, "Encoding error in message body"
 
     try:
-        # Connect to server
+        # Conectarse al servidor SMTP de Gmail y enviar el correo
         server = smtplib.SMTP(settings.smtp_server, settings.smtp_port)
         server.starttls()
         server.login(settings.smtp_user, settings.smtp_password)

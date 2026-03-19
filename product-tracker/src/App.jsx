@@ -13,12 +13,13 @@ import Inventory from './pages/Inventory';
 import Suppliers from './pages/Suppliers';
 import PurchaseOrders from './pages/PurchaseOrders';
 import Reports from './pages/Reports';
-import Settings from './pages/Settings';
+import Movements from './pages/Movements';
+import Clients from './pages/Clients';
 import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 
-// Role-Based ProtectedRoute implementation
+// Componente enrutador que protege rutas de React verificando si el usuario tiene sesión activa y el rol adecuado
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { isAuthenticated, loading, hasRole } = useAuth();
 
@@ -45,6 +46,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   return children;
 };
 
+// Componente principal que define la envoltura de los contextos globales y las rutas (Routes) de la app
 function App() {
   return (
     <ThemeProvider>
@@ -62,11 +64,12 @@ function App() {
                   <Route path="/" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
                     <Route index element={<Dashboard />} />
                     <Route path="pos" element={<ProtectedRoute allowedRoles={['CAJERO']}><POS /></ProtectedRoute>} />
-                    <Route path="inventory" element={<ProtectedRoute allowedRoles={['SUPERVISOR']}><Inventory /></ProtectedRoute>} />
-                    <Route path="suppliers" element={<ProtectedRoute allowedRoles={['SUPERVISOR']}><Suppliers /></ProtectedRoute>} />
-                    <Route path="purchase-orders" element={<ProtectedRoute allowedRoles={['SUPERVISOR']}><PurchaseOrders /></ProtectedRoute>} />
-                    <Route path="reports" element={<ProtectedRoute allowedRoles={['SUPERVISOR']}><Reports /></ProtectedRoute>} />
-                    <Route path="settings" element={<ProtectedRoute allowedRoles={['ADMIN']}><Settings /></ProtectedRoute>} />
+                    <Route path="inventory" element={<ProtectedRoute allowedRoles={['ADMIN', 'SUPERVISOR', 'CAJERO']}><Inventory /></ProtectedRoute>} />
+                    <Route path="suppliers" element={<ProtectedRoute allowedRoles={['ADMIN', 'SUPERVISOR']}><Suppliers /></ProtectedRoute>} />
+                    <Route path="purchase-orders" element={<ProtectedRoute allowedRoles={['ADMIN', 'SUPERVISOR']}><PurchaseOrders /></ProtectedRoute>} />
+                    <Route path="movements" element={<ProtectedRoute allowedRoles={['ADMIN', 'SUPERVISOR']}><Movements /></ProtectedRoute>} />
+                    <Route path="clients" element={<ProtectedRoute allowedRoles={['ADMIN', 'SUPERVISOR', 'CAJERO']}><Clients /></ProtectedRoute>} />
+                    <Route path="reports" element={<ProtectedRoute allowedRoles={['ADMIN', 'SUPERVISOR']}><Reports /></ProtectedRoute>} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Route>
                 </Routes>

@@ -7,6 +7,7 @@ from sqlalchemy import func
 from ..models import Product, Sale, SaleItem
 
 class ProfitService:
+    # Esta función calcula detalladamente la ganancia bruta y margen de un solo producto
     @staticmethod
     def calculate_product_profit(db: Session, product_id: int):
         """
@@ -16,7 +17,7 @@ class ProfitService:
         if not product:
             raise ValueError(f"Product {product_id} not found")
         
-        # Get all sales for this product
+        # Obtiene todas las ventas realizadas de este producto para calcular los ingresos
         sales_items = db.query(SaleItem).filter(SaleItem.product_id == product_id).all()
         
         total_revenue = 0
@@ -41,6 +42,7 @@ class ProfitService:
             "margin_percentage": round(float(margin_percentage), 2)
         }
     
+    # Esta función calcula la ganancia global combinando las ganancias de todos los productos vigentes
     @staticmethod
     def calculate_total_profit(db: Session):
         """

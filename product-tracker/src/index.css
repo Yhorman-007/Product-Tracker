@@ -1,3 +1,4 @@
+/* Importación del framework Tailwind CSS */
 @import "tailwindcss";
 
 /* Dark mode por clase en html (para ThemeContext) */
@@ -5,6 +6,7 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
+/* Variables globales del tema, paleta de colores y fuentes tipográficas */
 @theme {
   --color-primary: #6366f1;
   --color-primary-hover: #4f46e5;
@@ -52,6 +54,7 @@
   }
 }
 
+/* Utilidades personalizadas para retrasar animaciones */
 @utility animation-delay-2000 {
   animation-delay: 2s;
 }
@@ -60,7 +63,8 @@
   animation-delay: 4s;
 }
 
-/* ─── Elite Theme Engine (Cyber-Fresh Specifications) ────────────────────── */
+/* ─── Elite Theme Engine ─── */
+/* Variables de colores base y gradientes para el tema principal y el modo oscuro */
 :root {
   --bg-main: #f8fafc;
   --bg-card: #ffffff;
@@ -92,6 +96,7 @@
   --shadow-elite: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
 }
 
+/* Estilos globales del fondo de la página y tipografía general */
 body {
   background-color: var(--bg-main) !important;
   background-image: var(--grad-vibrant) !important;
@@ -108,6 +113,7 @@ body {
     radial-gradient(at 50% 0%, rgba(34, 197, 94, 0.05) 0, transparent 50%) !important;
 }
 
+/* Estilos base unificados para la fuente de todos los encabezados */
 h1,
 h2,
 h3,
@@ -115,11 +121,12 @@ h4,
 h5,
 h6 {
   font-family: var(--font-display);
-  color: var(--text-main) !important;
+  color: var(--text-main);
   letter-spacing: -0.025em;
 }
 
-/* ─── Container Systems ──────────────────────────────────────────────────── */
+/* ─── Container Systems ─── */
+/* Estilos de bordes y fondos difuminados (glassmorphism) para tarjetas y contenedores */
 .glass {
   background: var(--glass-bg) !important;
   backdrop-filter: blur(12px);
@@ -147,6 +154,7 @@ h6 {
     0 0 0 1px rgba(124, 58, 237, 0.1) !important;
 }
 
+/* Estilos para el encabezado de la plataforma (Header/Navbar) y transparencia */
 .cyber-header {
   background: rgba(255, 255, 255, 0.45) !important;
   backdrop-filter: blur(20px) saturate(180%);
@@ -178,7 +186,8 @@ h6 {
   border: 1px solid rgba(16, 185, 129, 0.15) !important;
 }
 
-/* ─── Typography & Buttons ──────────────────────────────────────────────── */
+/* ─── Typography & Buttons ─── */
+/* Estilos para texto atenuado y botones interactivos (primary, success) */
 .text-muted-semantic {
   color: var(--text-muted) !important;
 }
@@ -210,7 +219,8 @@ h6 {
   box-shadow: 0 8px 20px 0 rgba(59, 130, 246, 0.6);
 }
 
-/* ─── Login Page Specific ────────────────────────────────────────────────── */
+/* ─── Login Page Specific ─── */
+/* Estilos dedicados visualmente a la vista de autenticación y su fondo */
 .login-bg {
   background: linear-gradient(to bottom right, #f8fafc 0%, #eef2ff 100%);
 }
@@ -253,7 +263,8 @@ h6 {
   box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
 }
 
-/* ─── Scrollbar ──────────────────────────────────────────────────────────── */
+/* ─── Scrollbar ─── */
+/* Modificación visual de la barra de desplazamiento nativa del navegador */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;

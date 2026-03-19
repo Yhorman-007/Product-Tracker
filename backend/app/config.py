@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./product_tracker.db"
     secret_key: str
     algorithm: str = "HS256"
-    access_token_expire_minutes: int = 30
+    access_token_expire_minutes: int = 1440
     frontend_url: str = "http://localhost:5173"
     
     # SMTP Configuration

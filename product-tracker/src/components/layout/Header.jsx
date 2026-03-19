@@ -6,7 +6,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useSearch } from '../../context/SearchContext';
 import { useInventory } from '../../context/InventoryContext';
-import { Package, Users, ShoppingBag, ArrowRight, ChevronRight, X } from 'lucide-react';
+import { Package, Users, ShoppingBag, ArrowRight, ChevronRight, X, Settings } from 'lucide-react';
+import SettingsModal from './SettingsModal';
 
 const Header = () => {
     const { user } = useAuth();
@@ -15,6 +16,7 @@ const Header = () => {
     const { products, suppliers, purchaseOrders, alerts } = useInventory();
     const [showNotifDropdown, setShowNotifDropdown] = useState(false);
     const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
     const dropdownRef = useRef(null);
     const searchRef = useRef(null);
     const navigate = useNavigate();
@@ -43,10 +45,14 @@ const Header = () => {
             (s?.email || '').toLowerCase().includes(term)
         ).slice(0, 3);
 
-        const matchedOrders = (purchaseOrders || []).filter(o =>
-            (o?.id || '').toString().includes(term) ||
-            (o?.supplier_name || '').toLowerCase().includes(term)
-        ).slice(0, 3);
+        const matchedOrders = (purchaseOrders || []).filter(o => {
+            const sName = (suppliers || []).find(s => s.id === o.supplier_id)?.name || '';
+            const fId = `oc-${o.id}`.toLowerCase();
+            return (o?.id || '').toString().includes(term) ||
+                sName.toLowerCase().includes(term) ||
+                fId.includes(term) ||
+                `oc${o.id}`.toLowerCase().includes(term);
+        }).slice(0, 3);
 
         return {
             products: matchedProducts,
@@ -189,8 +195,8 @@ const Header = () => {
                                                             <ShoppingBag className="w-5 h-5 text-orange-600" />
                                                         </div>
                                                         <div className="flex-1 min-w-0">
-                                                            <p className="text-sm font-bold text-slate-700 dark:text-slate-200 truncate">PO #{o.id} • {o.supplier_name}</p>
-                                                            <p className="text-xs text-slate-500 capitalize">{o.status}</p>
+                                                            <p className="text-sm font-bold text-slate-700 dark:text-slate-200 truncate">OC-{o.id} • {(suppliers || []).find(s => s.id === o.supplier_id)?.name || 'Proveedor'}</p>
+                                                            <p className="text-xs text-slate-500 capitalize">{o.status === 'completado' ? 'Completado' : o.status === 'pending' ? 'Pendiente' : o.status}</p>
                                                         </div>
                                                         <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-orange-500 transition-colors" />
                                                     </button>
@@ -218,6 +224,17 @@ const Header = () => {
                         ? <Sun className="w-5 h-5 text-amber-400" />
                         : <Moon className="w-5 h-5 text-slate-500" />
                     }
+                </motion.button>
+
+                {/* Settings */}
+                <motion.button
+                    whileHover={{ scale: 1.08 }}
+                    whileTap={{ scale: 0.92 }}
+                    onClick={() => setIsSettingsModalOpen(true)}
+                    title="Configuración"
+                    className="p-2 rounded-full hover:bg-white/50 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 transition-colors"
+                >
+                    <Settings className="w-5 h-5" />
                 </motion.button>
 
                 {/* Notifications */}
@@ -294,6 +311,11 @@ const Header = () => {
                     </motion.div>
                 </div>
             </div>
+
+            <SettingsModal
+                isOpen={isSettingsModalOpen}
+                onClose={() => setIsSettingsModalOpen(false)}
+            />
         </header>
     );
 };

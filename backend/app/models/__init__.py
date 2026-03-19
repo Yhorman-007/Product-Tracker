@@ -5,7 +5,10 @@ from app.models.supplier import Supplier
 from app.models.purchase_order import PurchaseOrder, PurchaseOrderItem
 from app.models.stock_movement import StockMovement
 from app.models.user import User
+from app.models.product_supplier import ProductSupplier
 from app.models.audit_log import AuditLog
+from app.models.client import Client
+from app.models.return_sale import ReturnSale, ReturnItem
 
 __all__ = [
     "Product",
@@ -17,4 +20,8 @@ __all__ = [
     "StockMovement",
     "User",
     "AuditLog",
+    "ProductSupplier",
+    "Client",
+    "ReturnSale",
+    "ReturnItem",
 ]

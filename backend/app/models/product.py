@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
 
+# Este modelo aloja toda la información principal de los productos del inventario y sus métricas clave
 class Product(Base):
     """
     Product model - RF17 (stock minimo), RF24 (expiracion), RF08 (profit calculation)
@@ -25,7 +26,6 @@ class Product(Base):
     min_stock = Column(Integer, nullable=False, default=0)
     
     location = Column(String(255))
-    supplier_id = Column(Integer, ForeignKey("suppliers.id"), nullable=True)
     
     # Expiration tracking (RF24 - alertas de caducidad)
     expiration_date = Column(Date, nullable=True)
@@ -35,7 +35,7 @@ class Product(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    supplier = relationship("Supplier", back_populates="products")
+    supplier_associations = relationship("ProductSupplier", back_populates="product", cascade="all, delete-orphan")
     sale_items = relationship("SaleItem", back_populates="product")
     stock_movements = relationship("StockMovement", back_populates="product")
     purchase_order_items = relationship("PurchaseOrderItem", back_populates="product")

@@ -10,6 +10,7 @@ from .deps import get_current_active_admin, get_current_active_user
 
 router = APIRouter()
 
+# Este endpoint permite a un administrador dar de alta manualmente a un nuevo operario o supervisor
 @router.post("/", response_model=User)
 def create_user(
     *,
@@ -46,6 +47,7 @@ def create_user(
     db.refresh(db_obj)
     return db_obj
 
+# Este endpoint devuelve en todo momento los datos del usuario que actualmente está interactuando
 @router.get("/me", response_model=User)
 def read_user_me(
     current_user: UserModel = Depends(get_current_active_user),
@@ -53,5 +55,4 @@ def read_user_me(
     """
     Get current user (any authenticated active user)
     """
-    print(f"DEBUG: /users/me hit for user_id={current_user.id}, username={current_user.username}")
     return current_user

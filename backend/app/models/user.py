@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
 
+# Este modelo almacena a los usuarios registrados en el sistema, credenciales y roles para autenticación
 class User(Base):
     """
     User model for authentication

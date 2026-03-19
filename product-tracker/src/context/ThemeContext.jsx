@@ -8,9 +8,12 @@ export const useTheme = () => {
     return context;
 };
 
+// Proveedor del tema visual de la UI que alterna e inyecta la clase correspondiente en Tailwind
 export const ThemeProvider = ({ children }) => {
+    // useState: Lee la preferencia (light o dark) guardada desde LocalStorage antes de cargar
     const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
 
+    // useEffect: Sincroniza la etiqueta <html> del DOM inyectando o depurando la clase .dark
     useEffect(() => {
         const root = document.documentElement;
         if (theme === 'dark') {
@@ -21,6 +24,7 @@ export const ThemeProvider = ({ children }) => {
         localStorage.setItem('theme', theme);
     }, [theme]);
 
+    // Función sencilla que intercambia el tema para generar el renderizado
     const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
 
     return (

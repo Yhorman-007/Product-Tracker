@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
 
+# Este modelo almacena el registro de auditoría (historial de acciones y cambios) en el sistema
 class AuditLog(Base):
     """
     Audit log for tracking all changes

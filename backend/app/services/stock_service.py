@@ -7,6 +7,7 @@ from ..models import Product, StockMovement
 from datetime import datetime
 
 class StockService:
+    # Esta función se encarga de reducir la cantidad de stock de un producto tras una venta o salida
     @staticmethod
     def reduce_stock(db: Session, product_id: int, quantity: int, reason: str, 
                      reference_type: str = "sale", reference_id: int = None, user_id: int = None):
@@ -26,7 +27,7 @@ class StockService:
         # Create stock movement record
         movement = StockMovement(
             product_id=product_id,
-            type="EXIT",
+            type="SALE" if reference_type == "sale" else "OUT",
             quantity=quantity,
             reason=reason,
             reference_type=reference_type,
@@ -37,6 +38,7 @@ class StockService:
         
         return product
     
+    # Esta función incrementa el stock de un producto cuando se recibe mercadería o una devolución
     @staticmethod
     def increase_stock(db: Session, product_id: int, quantity: int, reason: str,
                       reference_type: str = "purchase_order", reference_id: int = None, user_id: int = None):
@@ -53,7 +55,7 @@ class StockService:
         # Create stock movement record
         movement = StockMovement(
             product_id=product_id,
-            type="ENTRY",
+            type="IN",
             quantity=quantity,
             reason=reason,
             reference_type=reference_type,

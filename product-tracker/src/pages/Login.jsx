@@ -2,16 +2,20 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
-import { User, Lock, AlertCircle, MapPin } from 'lucide-react';
+import { User, Lock, Eye, EyeOff, AlertCircle, MapPin } from 'lucide-react';
 
+// Vista Login: Interfaz pública encargada de autenticar usuarios en el sistema a través del AuthContext
 const Login = () => {
+    // useState: Define las credenciales manejadas en el formulario
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
 
+    // Fetch Intermediario: Evita la recarga al enviar form e invoca "login" del AuthContext
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -90,13 +94,20 @@ const Login = () => {
                                 <Lock size={20} />
                             </div>
                             <input
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
-                                className="login-input w-full pl-12 pr-4 py-4 rounded-2xl outline-none transition-all"
+                                className="login-input w-full pl-12 pr-12 py-4 rounded-2xl outline-none transition-all"
                                 placeholder="••••••••"
                             />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-500 transition-colors"
+                            >
+                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </button>
                         </div>
                     </div>
 

@@ -9,6 +9,7 @@ from ..models import Product
 from datetime import datetime, timedelta
 
 class AlertService:
+    # Esta función recupera todos los productos cuyo inventario actual está por debajo de su margen seguro mínimo (stock bajo)
     @staticmethod
     def get_low_stock_alerts(db: Session):
         """
@@ -35,6 +36,7 @@ class AlertService:
         
         return alerts
     
+    # Esta función escanea productos perecederos para encontrar cuáles están a punto de expirar dentro de los próximos 'days_ahead'
     @staticmethod
     def get_expiring_products(db: Session, days_ahead: int = 30):
         """
@@ -68,6 +70,7 @@ class AlertService:
         
         return sorted(alerts, key=lambda x: x["days_until_expiry"])
     
+    # Esta función consolida todas las alertas (fechas de expiración y stock bajo) en un solo reporte conjunto
     @staticmethod
     def get_all_alerts(db: Session):
         """

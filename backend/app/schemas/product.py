@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field, computed_field
-from typing import Optional
+from typing import Optional, List
 from datetime import date, datetime
+from app.schemas.product_supplier import ProductSupplier
 
 # Base schemas
 class ProductBase(BaseModel):
@@ -13,11 +14,10 @@ class ProductBase(BaseModel):
     stock: int = Field(ge=0)
     min_stock: int = Field(ge=0)
     location: Optional[str] = None
-    supplier_id: Optional[int] = None
     expiration_date: Optional[date] = None
 
 class ProductCreate(ProductBase):
-    pass
+    supplier_id: Optional[int] = None
 
 class ProductUpdate(BaseModel):
     name: Optional[str] = None
@@ -28,14 +28,15 @@ class ProductUpdate(BaseModel):
     unit: Optional[str] = None
     min_stock: Optional[int] = Field(None, ge=0)
     location: Optional[str] = None
-    supplier_id: Optional[int] = None
     expiration_date: Optional[date] = None
+    supplier_id: Optional[int] = None
 
 # Respuesta de Producto (salida)
 class Product(ProductBase):
     id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
+    supplier_associations: List[ProductSupplier] = []
 
     @computed_field
     @property
@@ -45,3 +46,6 @@ class Product(ProductBase):
 
     class Config:
         from_attributes = True
+
+# Force Pydantic v2 to resolve all forward references
+Product.model_rebuild()

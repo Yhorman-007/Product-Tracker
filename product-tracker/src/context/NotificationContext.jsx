@@ -12,9 +12,12 @@ export const useNotification = () => {
     return context;
 };
 
+// Proveedor global para gestionar el lanzamiento de notificaciones dinámicas emergentes (Toasts)
 export const NotificationProvider = ({ children }) => {
+    // useState: Arreglo de notificaciones actualmente activas en pantalla
     const [notifications, setNotifications] = useState([]);
 
+    // useCallback: Función memorizada para agregar alertas, que cuenta con auto-eliminación temporal (5s)
     const showNotification = useCallback((message, type = 'info') => {
         const id = Date.now();
         setNotifications(prev => [...prev, { id, message, type }]);
@@ -25,6 +28,7 @@ export const NotificationProvider = ({ children }) => {
         }, 5000);
     }, []);
 
+    // useCallback: Permite quitar un toast manualmente antes del timeout
     const removeNotification = useCallback((id) => {
         setNotifications(prev => prev.filter(n => n.id !== id));
     }, []);

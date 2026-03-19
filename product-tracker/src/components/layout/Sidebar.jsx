@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, ShoppingCart, Package, Users, ShoppingBag, FileText, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, Users, ShoppingBag, FileText, Settings, LogOut, History, UserCheck, Truck } from 'lucide-react';
 import clsx from 'clsx';
 import { useAuth } from '../../context/AuthContext';
 
@@ -30,11 +30,12 @@ const Sidebar = () => {
     const allNavItems = [
         { icon: LayoutDashboard, label: 'Dashboard', path: '/', roles: ['ADMIN', 'SUPERVISOR', 'CAJERO'] },
         { icon: ShoppingCart, label: 'Punto de Venta', path: '/pos', roles: ['ADMIN', 'CAJERO'] },
-        { icon: Package, label: 'Inventario', path: '/inventory', roles: ['ADMIN', 'SUPERVISOR'] },
-        { icon: Users, label: 'Proveedores', path: '/suppliers', roles: ['ADMIN', 'SUPERVISOR'] },
+        { icon: Package, label: 'Inventario', path: '/inventory', roles: ['ADMIN', 'SUPERVISOR', 'CAJERO'] },
+        { icon: Truck, label: 'Proveedores', path: '/suppliers', roles: ['ADMIN', 'SUPERVISOR'] },
+        { icon: UserCheck, label: 'Clientes', path: '/clients', roles: ['ADMIN', 'SUPERVISOR', 'CAJERO'] },
         { icon: ShoppingBag, label: 'Órdenes de Compra', path: '/purchase-orders', roles: ['ADMIN', 'SUPERVISOR'] },
+        { icon: History, label: 'Movimientos', path: '/movements', roles: ['ADMIN', 'SUPERVISOR'] },
         { icon: FileText, label: 'Reportes', path: '/reports', roles: ['ADMIN', 'SUPERVISOR'] },
-        { icon: Settings, label: 'Configuración', path: '/settings', roles: ['ADMIN'] },
     ];
 
     const navItems = allNavItems.filter(item => hasRole(item.roles));

@@ -11,10 +11,13 @@ export const useAuth = () => {
     return context;
 };
 
+// Proveedor global de autenticación que maneja la sesión y roles del usuario en toda la app
 export const AuthProvider = ({ children }) => {
+    // useState: Define al usuario actual y el estado de carga al abrir la aplicación
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    // Fetch: Obtiene y configura el perfil real y rol del usuario mediante el token guardado
     // Fetch real profile from /api/users/me
     const fetchProfile = async () => {
         try {
@@ -33,6 +36,7 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // useEffect: Valida si hay constancia de token al entrar, y extrae perfil bloqueando re-render innecesarios
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
@@ -42,6 +46,7 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
+    // Fetch: Valida credenciales contra backend para obtener token de ingreso
     const login = async (username, password) => {
         try {
             const data = await authApi.login(username, password);
@@ -55,11 +60,13 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // Función auxiliar para eliminar rastro de la sesión en el navegador
     const logout = () => {
         localStorage.removeItem('token');
         setUser(null);
     };
 
+    // Función para validar autorización granular sobre un rol concreto requerido
     // Helper to check if user has required role(s)
     const hasRole = (allowedRoles) => {
         if (!user) return false;
