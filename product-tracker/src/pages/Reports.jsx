@@ -24,7 +24,8 @@ const Reports = () => {
     const [returnReason, setReturnReason] = useState('');
     const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
     const [processingReturn, setProcessingReturn] = useState(false);
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    const API_URL = rawApiUrl.replace(/\/+$/, '');
 
     const fetchDailyClosure = async () => {
         setLoadingClosure(true);

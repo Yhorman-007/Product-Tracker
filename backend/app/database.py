@@ -4,9 +4,13 @@ from sqlalchemy.orm import sessionmaker
 from app.config import settings
 
 # Create PostgreSQL engine
-print(f"DEBUG: Conectando a la base de datos: {settings.database_url}")
+db_url = settings.database_url
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+print(f"DEBUG: Conectando a la base de datos: {db_url}")
 engine = create_engine(
-    settings.database_url,
+    db_url,
     connect_args={"connect_timeout": 10}
 )
 

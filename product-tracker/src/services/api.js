@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 // Configuración inicial de Axios con la URL base del backend
-const API_URL = 'http://localhost:8000/api/';
+// Usamos VITE_API_URL si existe, si no usamos localhost.
+const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = `${rawApiUrl.replace(/\/+$/, '')}/api/`;
 
 const api = axios.create({
     baseURL: API_URL,

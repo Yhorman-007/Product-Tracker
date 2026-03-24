@@ -18,7 +18,8 @@ const Signup = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const { showNotification } = useNotification();
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    const API_URL = rawApiUrl.replace(/\/+$/, '');
 
     // Fetch: Valida formulario y ejecuta llamado POST directo contra la capa de autenticación del backend
     const handleSubmit = async (e) => {

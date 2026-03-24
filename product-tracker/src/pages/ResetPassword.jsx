@@ -15,7 +15,8 @@ const ResetPassword = () => {
     const [success, setSuccess] = useState(false);
     const [countdown, setCountdown] = useState(5);
 
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    const API_URL = rawApiUrl.replace(/\/+$/, '');
 
     // Cleanup ref: prevents setState on unmounted component
     const mountedRef = useRef(true);
