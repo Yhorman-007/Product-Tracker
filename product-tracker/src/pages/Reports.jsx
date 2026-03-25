@@ -229,38 +229,50 @@ const Reports = () => {
 
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass-card rounded-2xl p-6 border-l-4 border-l-blue-500">
-                    <div className="flex items-center gap-4">
-                        <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl"><DollarSign className="w-6 h-6 text-blue-600" /></div>
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-white/10 shadow-xl relative overflow-hidden group">
+                    <div className="absolute -right-4 -top-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
+                        <DollarSign className="w-24 h-24 rotate-12 text-blue-600" />
+                    </div>
+                    <div className="relative z-10 flex items-center gap-4">
+                        <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl shadow-inner"><DollarSign className="w-6 h-6 text-blue-600" /></div>
                         <div>
-                            <p className="text-[11px] font-black uppercase text-slate-500 dark:text-slate-400">Valor Inventario (Costo)</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1">Valor Inventario (Costo)</p>
                             <p className="text-xl font-black text-slate-900 dark:text-white">{formatCOP(totalInventoryValue)}</p>
                         </div>
                     </div>
                 </motion.div>
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card rounded-2xl p-6 border-l-4 border-l-emerald-500">
-                    <div className="flex items-center gap-4">
-                        <div className="p-3 bg-green-100 dark:bg-emerald-900/30 rounded-xl"><TrendingUp className="w-6 h-6 text-green-600" /></div>
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-white/10 shadow-xl relative overflow-hidden group">
+                    <div className="absolute -right-4 -top-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
+                        <TrendingUp className="w-24 h-24 rotate-12 text-green-600" />
+                    </div>
+                    <div className="relative z-10 flex items-center gap-4">
+                        <div className="p-3 bg-green-100 dark:bg-emerald-900/30 rounded-xl shadow-inner"><TrendingUp className="w-6 h-6 text-green-600" /></div>
                         <div>
-                            <p className="text-[11px] font-black uppercase text-slate-500 dark:text-slate-400">Ventas Totales</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1">Ventas Totales</p>
                             <p className="text-xl font-black text-slate-900 dark:text-white">{formatCOP(totalSales)}</p>
                         </div>
                     </div>
                 </motion.div>
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card rounded-2xl p-6 border-l-4 border-l-indigo-500">
-                    <div className="flex items-center gap-4">
-                        <div className="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl"><Calculator className="w-6 h-6 text-indigo-600" /></div>
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-white/10 shadow-xl relative overflow-hidden group">
+                    <div className="absolute -right-4 -top-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
+                        <Calculator className="w-24 h-24 rotate-12 text-indigo-600" />
+                    </div>
+                    <div className="relative z-10 flex items-center gap-4">
+                        <div className="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl shadow-inner"><Calculator className="w-6 h-6 text-indigo-600" /></div>
                         <div>
-                            <p className="text-[11px] font-black uppercase text-slate-500 dark:text-slate-400">Utilidad Neta (Real)</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1">Utilidad Neta (Real)</p>
                             <p className="text-xl font-black text-indigo-600 dark:text-indigo-400">{formatCOP(stats.netProfit || 0)}</p>
                         </div>
                     </div>
                 </motion.div>
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass-card rounded-2xl p-6 border-l-4 border-l-orange-500">
-                    <div className="flex items-center gap-4">
-                        <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-xl"><TrendingUp className="w-6 h-6 text-orange-600" /></div>
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-white/10 shadow-xl relative overflow-hidden group">
+                    <div className="absolute -right-4 -top-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
+                        <TrendingUp className="w-24 h-24 rotate-12 text-orange-600" />
+                    </div>
+                    <div className="relative z-10 flex items-center gap-4">
+                        <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-xl shadow-inner"><TrendingUp className="w-6 h-6 text-orange-600" /></div>
                         <div>
-                            <p className="text-[11px] font-black uppercase text-slate-500 dark:text-slate-400">Utilidad Potencial</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1">Utilidad Potencial</p>
                             <p className="text-xl font-black text-orange-600 dark:text-orange-400">{formatCOP(totalPotentialProfit)}</p>
                         </div>
                     </div>

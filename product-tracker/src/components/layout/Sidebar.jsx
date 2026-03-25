@@ -48,7 +48,7 @@ const Sidebar = () => {
                 width: isExpanded ? '16rem' : '5rem',
                 transition: 'width 0.25s cubic-bezier(0.4,0,0.2,1)',
             }}
-            className="fixed left-0 top-0 h-screen glass-vibrant dark:bg-[#0f172a]/80 border-r border-white/20 z-50 flex flex-col shadow-2xl overflow-hidden transition-all duration-300"
+            className="fixed left-0 top-0 h-screen bg-slate-900 border-r border-white/10 z-50 flex flex-col shadow-2xl overflow-hidden transition-all duration-300"
         >
             {/* ── Logo header ─────────────────────────────────────────────── */}
             <div className="h-24 flex items-center justify-center border-b border-slate-100 dark:border-white/5 relative">

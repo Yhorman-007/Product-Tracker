@@ -15,11 +15,11 @@ const StatCard = ({ icon: Icon, label, value, accentClass, glowClass, delay }) =
             transition={{ duration: 0.5, delay }}
             className="w-full glass-vibrant p-8 rounded-3xl relative overflow-hidden group shadow-2xl min-w-0"
         >
-            {/* Background icon watermark */}
-            <div className={`absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity rounded-2xl ${accentClass}`}>
-                <Icon className="w-24 h-24" />
+            {/* Background icon watermark - Reduced opacity and set z-index back */}
+            <div className={`absolute -top-4 -right-4 p-4 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity rounded-2xl ${accentClass} z-0 pointer-events-none`}>
+                <Icon className="w-32 h-32 rotate-12" />
             </div>
-            <div className="relative z-10 flex flex-col w-full h-full justify-between">
+            <div className="relative z-10 flex flex-col w-full h-full justify-between pointer-events-none">
                 <div className="flex items-start gap-4 flex-wrap">
                     <div className={`p-5 rounded-2xl ${accentClass} bg-opacity-10 shadow-xl ${glowClass} border border-white/20`}>
                         <Icon className="w-8 h-8 text-white" />
