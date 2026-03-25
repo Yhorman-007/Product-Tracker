@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
                 username: data.username,
                 full_name: data.full_name || data.username,
                 email: data.email,
-                role: data.role || 'CAJERO', // ADMIN, SUPERVISOR, CAJERO
+                role: (data.role || 'CAJERO').toUpperCase(), // Normalize to ADMIN, SUPERVISOR, CAJERO
             });
         } catch (error) {
             console.error('Failed to fetch profile:', error);
@@ -70,8 +70,9 @@ export const AuthProvider = ({ children }) => {
     // Helper to check if user has required role(s)
     const hasRole = (allowedRoles) => {
         if (!user) return false;
-        if (user.role === 'ADMIN') return true; // Admin has skip-all
-        return allowedRoles.includes(user.role);
+        const userRole = user.role.toUpperCase();
+        if (userRole === 'ADMIN') return true; // Admin has skip-all
+        return allowedRoles.map(r => r.toUpperCase()).includes(userRole);
     };
 
     return (
@@ -82,9 +83,9 @@ export const AuthProvider = ({ children }) => {
             isAuthenticated: !!user,
             loading,
             hasRole,
-            isAdmin: user?.role === 'ADMIN',
-            isSupervisor: user?.role === 'SUPERVISOR',
-            isCajero: user?.role === 'CAJERO'
+            isAdmin: user?.role?.toUpperCase() === 'ADMIN',
+            isSupervisor: user?.role?.toUpperCase() === 'SUPERVISOR',
+            isCajero: user?.role?.toUpperCase() === 'CAJERO'
         }}>
             {children}
         </AuthContext.Provider>
