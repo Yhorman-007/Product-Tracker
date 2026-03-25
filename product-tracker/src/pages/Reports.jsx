@@ -14,7 +14,7 @@ import { useAuth } from '../context/AuthContext';
 const Reports = () => {
     const { isAdmin } = useAuth();
     const { products, sales, stockMovements, clients, createReturn, stats } = useInventory();
-    const { searchTerm } = useSearch();
+    // const { searchTerm } = useSearch();
     const { showNotification } = useNotification();
     const [closureData, setClosureData] = useState(null);
     const [isClosureModalOpen, setIsClosureModalOpen] = useState(false);
@@ -158,7 +158,7 @@ const Reports = () => {
             setIsReturnModalOpen(false);
             setReturnReason('');
             setReturnSale(null);
-        } catch (error) {
+        } catch {
             console.error('Error info:', error);
             showNotification('Error al procesar devolución', 'error');
         } finally {

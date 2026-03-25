@@ -9,9 +9,12 @@ import ConfirmModal from '../components/ui/ConfirmModal';
 
 const Suppliers = () => {
     const { isAdmin } = useAuth();
-    const { suppliers, addSupplier, updateSupplier, deleteSupplier, products, updateProduct } = useInventory();
+    const { 
+        suppliers, addSupplier, updateSupplier, deleteSupplier, products,
+        getSupplierCatalogue, addToCatalogue, removeFromCatalogue 
+    } = useInventory();
     const { showNotification } = useNotification();
-    const { searchTerm, setSearchTerm } = useSearch();
+    const { searchTerm } = useSearch();
     const [showCatalogueModal, setShowCatalogueModal] = useState(null); // supplier object
     const [catalogueItems, setCatalogueItems] = useState([]); // {product_id, cost}
     const [editingSupplier, setEditingSupplier] = useState(null);
@@ -19,14 +22,13 @@ const Suppliers = () => {
     const [confirmDelete, setConfirmDelete] = useState({ isOpen: false, supplier: null });
     const [prodSearch, setProdSearch] = useState('');
     const [selectedProductIds, setSelectedProductIds] = useState([]);
-    const { getSupplierCatalogue, addToCatalogue, removeFromCatalogue } = useInventory();
 
     const openCatalogue = async (supplier) => {
         try {
             const items = await getSupplierCatalogue(supplier.id);
             setCatalogueItems(items);
             setShowCatalogueModal(supplier);
-        } catch (error) {
+        } catch {
             showNotification('Error al cargar catálogo', 'error');
         }
     };
@@ -443,7 +445,7 @@ const Suppliers = () => {
                     try {
                         await deleteSupplier(confirmDelete.supplier.id);
                         showNotification('Proveedor eliminado', 'success');
-                    } catch (error) {
+                    } catch {
                         showNotification('Error al eliminar proveedor', 'error');
                     }
                     setConfirmDelete({ isOpen: false, supplier: null });

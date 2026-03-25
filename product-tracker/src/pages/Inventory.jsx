@@ -335,7 +335,14 @@ const Inventory = () => {
                                                                     setEmergencyAuthItem({
                                                                         title: 'Eliminación Permanente',
                                                                         description: `Borrando: ${product.name}`,
-                                                                        callback: performDelete
+                                                                        callback: async () => {
+                                                                             try {
+                                                                                 await deleteProduct(product.id);
+                                                                                 showNotification('Producto eliminado permanentemente', 'success');
+                                                                             } catch (err) {
+                                                                                 showNotification('Error: ' + (err.response?.data?.detail || err.message), 'error');
+                                                                             }
+                                                                         }
                                                                     });
                                                                 }
                                                             }}
