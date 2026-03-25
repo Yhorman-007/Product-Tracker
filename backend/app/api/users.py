@@ -16,7 +16,7 @@ def create_user(
     *,
     db: Session = Depends(get_db),
     user_in: UserCreate,
-    # current_user: UserModel = Depends(get_current_active_admin)
+    current_user: UserModel = Depends(get_current_active_admin)
 ) -> Any:
     """
     Create new user (Only for Admins)
