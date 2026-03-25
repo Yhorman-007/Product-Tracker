@@ -15,17 +15,17 @@ const StatCard = ({ icon: Icon, label, value, accentClass, glowClass, delay }) =
             transition={{ duration: 0.5, delay }}
             className="w-full glass-vibrant p-8 rounded-3xl relative overflow-hidden group shadow-2xl min-w-0"
         >
-            {/* Background icon watermark - Reduced opacity and set z-index back */}
-            <div className={`absolute -top-4 -right-4 p-4 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity rounded-2xl ${accentClass} z-0 pointer-events-none`}>
+            {/* Background icon watermark - Layered behind text */}
+            <div className={`absolute -top-4 -right-4 p-4 opacity-[0.05] group-hover:opacity-[0.10] transition-opacity rounded-2xl ${accentClass} z-0 pointer-events-none`}>
                 <Icon className="w-32 h-32 rotate-12" />
             </div>
             <div className="relative z-10 flex flex-col w-full h-full justify-between pointer-events-none">
-                <div className="flex items-start gap-4 flex-wrap">
-                    <div className={`p-5 rounded-2xl ${accentClass} bg-opacity-10 shadow-xl ${glowClass} border border-white/20`}>
+                <div className="flex items-start gap-4 flex-wrap z-10">
+                    <div className={`p-5 rounded-2xl ${accentClass} bg-opacity-20 shadow-xl ${glowClass} border border-white/20`}>
                         <Icon className="w-8 h-8 text-white" />
                     </div>
                 </div>
-                <div className="mt-8 w-full">
+                <div className="mt-8 w-full z-20">
                     <p className={`font-black text-slate-900 dark:text-slate-100 leading-tight text-3xl tracking-[-0.05em] mb-1 whitespace-nowrap`}>
                         {value}
                     </p>

@@ -14,8 +14,7 @@ import { useAuth } from '../../context/AuthContext';
 // The `layoutId` active pill is replaced with a simple CSS transition.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const Sidebar = () => {
-    const [isExpanded, setIsExpanded] = useState(false);
+const Sidebar = ({ isExpanded, setIsExpanded }) => {
     const { logout, hasRole } = useAuth();
     const [appName, setAppName] = useState(localStorage.getItem('appName') || 'Product Tracker');
 
@@ -48,7 +47,7 @@ const Sidebar = () => {
                 width: isExpanded ? '16rem' : '5rem',
                 transition: 'width 0.25s cubic-bezier(0.4,0,0.2,1)',
             }}
-            className="fixed left-0 top-0 h-screen bg-slate-900 border-r border-white/10 z-50 flex flex-col shadow-2xl overflow-hidden transition-all duration-300"
+            className="fixed left-0 top-0 h-screen bg-[#0f172a] shadow-2xl z-[100] flex flex-col transition-all duration-300 ease-in-out border-r border-white/5"
         >
             {/* ── Logo header ─────────────────────────────────────────────── */}
             <div className="h-24 flex items-center justify-center border-b border-slate-100 dark:border-white/5 relative">
@@ -65,11 +64,11 @@ const Sidebar = () => {
                     </div>
                     {/* Label – always in DOM, width animated */}
                     <span
-                        className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-green-500 whitespace-nowrap overflow-hidden"
+                        className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-green-500 whitespace-nowrap overflow-visible"
                         style={{
-                            maxWidth: isExpanded ? '120px' : '0px',
+                            maxWidth: isExpanded ? '250px' : '0px',
                             opacity: isExpanded ? 1 : 0,
-                            transition: 'max-width 0.25s ease, opacity 0.2s ease',
+                            transition: 'max-width 0.4s ease, opacity 0.3s ease',
                         }}
                     >
                         {appName}
