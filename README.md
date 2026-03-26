@@ -1,83 +1,83 @@
-# Sistema de Gestión de Inventario Pro
+# Sistema de Gestión de Inventario Pro 🚀
 
-Aplicación web diseñada para que pequeños y medianos negocios puedan gestionar su inventario, registrar ventas, controlar proveedores y generar reportes, todo desde una interfaz rápida y moderna construida con **React** en el frontend y **FastAPI + PostgreSQL** en el backend.
-
----
-## oeee
-## ¿Qué incluye?
-
-- **Autenticación completa** — Registro, inicio de sesión y recuperación de contraseña por correo electrónico.
-- **Gestión de roles** — Diferencia entre usuario administrador y usuario estándar con accesos restringidos.
-- **Inventario** — Agrega, edita y elimina productos con soporte para SKU, precios, stock y fechas de vencimiento.
-- **Punto de Venta** — Registra salidas de stock y ventas rápidamente.
-- **Proveedores** — Administra tu lista de proveedores y órdenes de compra.
-- **Reportes** — Visualiza resúmenes de ventas y utilidad del negocio.
+Aplicación web profesional diseñada para que pequeños y medianos negocios puedan gestionar su inventario, registrar ventas, controlar proveedores y generar reportes detallados. Construida con un stack moderno: **React 19** en el frontend y **FastAPI + PostgreSQL** en el backend.
 
 ---
 
-## Tecnologías
+## ✨ Características Principales (Nuevas y Actualizadas)
 
-| Capa | Stack |
+### 🔐 Seguridad y Gestión de Accesos
+- **Autenticación Robusta:** Registro, inicio de sesión seguro y recuperación de contraseña vía email (Gmail SMTP).
+- **Gestión de Roles:** Diferenciación entre administradores y usuarios estándar con permisos granulares.
+- **Logs de Auditoría:** Registro automático de todas las acciones críticas realizadas por los usuarios para trazabilidad completa.
+
+### 📦 Gestión de Inventario y Movimientos
+- **Control Total:** Gestión de productos con SKU, códigos de barras (escaneo por cámara), precios de costo/venta, IVA y fechas de vencimiento.
+- **Historial de Movimientos:** Módulo dedicado para visualizar cada entrada y salida de stock con filtros avanzados.
+- **Alertas de Stock Bajo:** Indicadores visuales y alertas para reposición inmediata.
+
+### 💰 Punto de Venta (POS) y Ventas
+- **Interfaz Rápida:** Carrito de ventas intuitivo con búsqueda de productos y soporte para múltiples métodos de pago.
+- **Gestión de Clientes:** Perfiles de clientes frecuentes con historial de compras personalizado.
+- **Devoluciones:** Módulo para procesar retornos de productos y ajustes automáticos de stock.
+
+### 🚛 Proveedores y Compras
+- **Órdenes de Compra:** Generación y seguimiento de pedidos a proveedores en formato PDF.
+- **Directorio de Proveedores:** Información de contacto y productos suministrados.
+
+### 📊 Análisis y Reportes
+- **Dashboard Interactivo:** Vista general con métricas en tiempo real (Ingresos mensuales, total de productos, alertas de stock).
+- **Reportes Avanzados:** Generación de reportes de ventas, utilidad y movimientos en formatos PDF y Excel.
+
+---
+
+## 🛠️ Stack Tecnológico
+
+| Capa | Tecnologías |
 |---|---|
-| Frontend | React 18 · Vite · TailwindCSS |
-| Backend | FastAPI · SQLAlchemy · PostgreSQL |
-| Auth | JWT · bcrypt |
-| Email | SMTP (Gmail) |
+| **Frontend** | React 19 · Vite · TailwindCSS 4 · Framer Motion · Lucide Icons |
+| **Backend** | FastAPI · SQLAlchemy 2.0 · PostgreSQL 16 |
+| **Infraestructura** | Railway (API) · Neon (Serverless Postgres) |
+| **Utilidades** | JWT · Bcrypt · Axios · JSPSF · XLSX |
 
 ---
 
-## Cómo iniciar el proyecto
+## 🚀 Despliegue en Producción
 
-### Backend
+El sistema se encuentra desplegado y operativo en las siguientes plataformas:
 
+- **API Backend:** [Product Tracker API](https://product-tracker-production.up.railway.app/) (Railway)
+- **Base de Datos:** [Neon.tech](https://neon.tech/) (PostgreSQL en US-East-1)
+
+---
+
+## ⚙️ Configuración Local
+
+### 1. Backend
 ```bash
-# 1. Entrar a la carpeta del backend
 cd backend
-
-# 2. Crear entorno virtual e instalar dependencias
 python -m venv venv
-venv\Scripts\activate
+source venv/bin/activate  # En Windows: venv\Scripts\activate
 pip install -r requirements.txt
-
-# 3. Crear el archivo .env con tus datos (ver ejemplo abajo)
-
-# 4. Iniciar el servidor
+# Crear .env basado en .env.example
 python -m uvicorn app.main:app --reload
 ```
 
-El servidor queda disponible en `http://localhost:8000`
-
-#### Archivo `.env` del backend
-
-```
-DATABASE_URL=postgresql://usuario:contraseña@localhost:5432/nombre_db
-SECRET_KEY=una_clave_secreta_larga
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=60
-
-SMTP_SERVER=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USERNAME=tu@gmail.com
-SMTP_PASSWORD=tu_app_password
-EMAIL_FROM=tu@gmail.com
+### 2. Frontend
+```bash
+cd product-tracker
+npm install
+# Crear .env con VITE_API_URL=http://localhost:8000
+npm run dev
 ```
 
 ---
 
-### Frontend
+## 📂 Utilidades Técnicas
+- **Compendio Técnico:** Ejecute `python build.py` para generar un archivo `compendio_tecnico_completo.txt` con todo el código fuente del proyecto para auditoría o documentación.
 
-```bash
-# 1. Entrar a la carpeta del frontend
-cd product-tracker
+---
 
-# 2. Instalar dependencias
-npm install
-
-# 3. Crear el archivo .env
-# VITE_API_URL=http://localhost:8000
-
-# 4. Iniciar la app
-npm run dev
-```
-
-La aplicación queda disponible en `http://localhost:5173`
+## 👨‍💻 Créditos
+Desarrollado por **Yhorman Garcés**.  
+*Marzo 2026*
