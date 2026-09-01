@@ -1,14 +1,16 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.sql import func
 from ..database import Base
 
-# Este modelo representa a los clientes registrados en el sistema, incluyendo datos de contacto e identificación
+
 class Client(Base):
     __tablename__ = "clients"
+    __table_args__ = (UniqueConstraint("organization_id", "identification", name="uq_org_client_identification"),)
 
     id = Column(Integer, primary_key=True, index=True)
+    organization_id = Column(Integer, ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True)
     name = Column(String, index=True, nullable=False)
-    identification = Column(String, unique=True, index=True, nullable=True) # Cedula o NIT
+    identification = Column(String, index=True, nullable=True)
     email = Column(String, index=True, nullable=True)
     phone = Column(String, nullable=True)
     address = Column(String, nullable=True)

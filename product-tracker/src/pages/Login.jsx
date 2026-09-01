@@ -23,7 +23,7 @@ const Login = () => {
         try {
             await login(username.trim(), password);
             setTimeout(() => {
-                navigate('/');
+                navigate('/app');
             }, 100);
         } catch (err) {
             console.error('❌ [LOGIN ERROR]:', err);

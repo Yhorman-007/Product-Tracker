@@ -2,7 +2,7 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 
-# Schema compartido
+
 class UserBase(BaseModel):
     username: str
     email: EmailStr
@@ -10,11 +10,11 @@ class UserBase(BaseModel):
     is_active: Optional[bool] = True
     role: Optional[str] = "CAJERO"
 
-# Registro de usuario (entrada)
+
 class UserCreate(UserBase):
     password: str
 
-# Actualizacion de usuario (entrada)
+
 class UserUpdate(BaseModel):
     id: int
     username: Optional[str] = None
@@ -24,17 +24,19 @@ class UserUpdate(BaseModel):
     is_active: Optional[bool] = None
     role: Optional[str] = None
 
-# Respuesta de usuario (salida)
+
 class User(UserBase):
     id: int
+    organization_id: int
     created_at: datetime
 
     class Config:
         from_attributes = True
 
-# Esquemas para recuperacion de password
+
 class PasswordResetRequest(BaseModel):
     email: EmailStr
+
 
 class PasswordReset(BaseModel):
     token: str

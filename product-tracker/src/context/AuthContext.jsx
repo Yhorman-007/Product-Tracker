@@ -51,6 +51,9 @@ export const AuthProvider = ({ children }) => {
         try {
             const data = await authApi.login(username, password);
             localStorage.setItem('token', data.access_token);
+            if (data.refresh_token) {
+                localStorage.setItem('refresh_token', data.refresh_token);
+            }
             // Fetch real user profile after login
             await fetchProfile();
             return true;
@@ -63,6 +66,7 @@ export const AuthProvider = ({ children }) => {
     // Función auxiliar para eliminar rastro de la sesión en el navegador
     const logout = () => {
         localStorage.removeItem('token');
+        localStorage.removeItem('refresh_token');
         setUser(null);
     };
 

@@ -1,27 +1,54 @@
 from datetime import datetime, timedelta, timezone
-from typing import Any, Union
+from typing import Any, Optional, Union
 from jose import jwt
 from passlib.context import CryptContext
 from app.config import settings
 
-# Usamos pbkdf2_sha256 para maxima compatibilidad en Windows
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
-
 ALGORITHM = settings.algorithm
 
-def create_access_token(subject: Union[str, Any], expires_delta: timedelta = None) -> str:
+
+def create_token(
+    subject: Union[str, Any],
+    token_type: str,
+    expires_delta: Optional[timedelta] = None,
+    organization_id: Optional[int] = None,
+) -> str:
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(
-            minutes=settings.access_token_expire_minutes
+        minutes = (
+            settings.refresh_token_expire_minutes
+            if token_type == "refresh"
+            else settings.access_token_expire_minutes
         )
-    to_encode = {"exp": expire, "sub": str(subject)}
-    encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm=ALGORITHM)
-    return encoded_jwt
+        expire = datetime.now(timezone.utc) + timedelta(minutes=minutes)
+
+    payload = {"exp": expire, "sub": str(subject), "type": token_type}
+    if organization_id is not None:
+        payload["org"] = organization_id
+    return jwt.encode(payload, settings.secret_key, algorithm=ALGORITHM)
+
+
+def create_access_token(
+    subject: Union[str, Any],
+    expires_delta: Optional[timedelta] = None,
+    organization_id: Optional[int] = None,
+) -> str:
+    return create_token(subject, "access", expires_delta, organization_id)
+
+
+def create_refresh_token(
+    subject: Union[str, Any],
+    expires_delta: Optional[timedelta] = None,
+    organization_id: Optional[int] = None,
+) -> str:
+    return create_token(subject, "refresh", expires_delta, organization_id)
+
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
+
 
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)

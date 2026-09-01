@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Save, Building2, Percent, Phone, MapPin, Hash, AlertTriangle } from 'lucide-react';
+import { X, Save, Building2, Percent, Phone, MapPin, Hash, AlertTriangle, CreditCard } from 'lucide-react';
+import { billingApi, invitationsApi } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 const SettingsModal = ({ isOpen, onClose }) => {
+    const { isAdmin } = useAuth();
     const [config, setConfig] = useState({
         businessName: 'Product Tracker',
         nit: '',
@@ -11,21 +14,46 @@ const SettingsModal = ({ isOpen, onClose }) => {
         address: '',
         iva: 19
     });
+    const [usage, setUsage] = useState(null);
+    const [billingLoading, setBillingLoading] = useState(false);
+    const [inviteEmail, setInviteEmail] = useState('');
+    const [inviteRole, setInviteRole] = useState('CAJERO');
+    const [inviteLoading, setInviteLoading] = useState(false);
 
-    // Load initial configuration
     useEffect(() => {
         if (!isOpen) return;
         const saved = localStorage.getItem('businessConfig');
-        if (saved) {
-            setConfig(JSON.parse(saved));
-        } else {
-            const oldTax = localStorage.getItem('taxConfig');
-            if (oldTax) {
-                const parsedOld = JSON.parse(oldTax);
-                setConfig(prev => ({ ...prev, iva: parsedOld.iva || 19 }));
-            }
+        if (saved) setConfig(JSON.parse(saved));
+        if (isAdmin) {
+            billingApi.getUsage().then((r) => setUsage(r.data)).catch(() => setUsage(null));
         }
-    }, [isOpen]);
+    }, [isOpen, isAdmin]);
+
+    const openBillingPortal = async () => {
+        setBillingLoading(true);
+        try {
+            const { data } = await billingApi.portal();
+            if (data.portal_url) window.location.href = data.portal_url;
+        } catch {
+            alert('Portal de facturación no disponible. Configura Stripe en el backend.');
+        } finally {
+            setBillingLoading(false);
+        }
+    };
+
+    const sendInvite = async (e) => {
+        e.preventDefault();
+        setInviteLoading(true);
+        try {
+            await invitationsApi.create({ email: inviteEmail, role: inviteRole });
+            setInviteEmail('');
+            alert('Invitación creada. Comparte el enlace de aceptación con el usuario.');
+        } catch (err) {
+            alert(err.response?.data?.detail || 'No se pudo crear la invitación');
+        } finally {
+            setInviteLoading(false);
+        }
+    };
 
     const handleSave = (e) => {
         if (e) e.preventDefault();
@@ -152,10 +180,45 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                 min="0"
                                             />
                                             <p className="text-[10px] text-slate-500 font-medium leading-tight">
-                                                Este valor se usará para alertar si el stock cae por debajo de esta cantidad, incluso si el producto no tiene un mínimo específico configurado.
+                                                Este valor se usará para alertar si el stock cae por debajo de esta cantidad.
                                             </p>
                                         </div>
                                     </div>
+
+                                    {isAdmin && usage && (
+                                        <div className="md:col-span-2 p-6 rounded-2xl bg-emerald-500/5 border border-emerald-500/20">
+                                            <label className={labelClass}><CreditCard className="w-4 h-4 text-emerald-500" /> Facturación</label>
+                                            <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">
+                                                Plan: <strong>{usage.plan}</strong> · Estado: {usage.status}
+                                            </p>
+                                            <p className="text-xs text-slate-500 mb-4">
+                                                Usuarios: {usage.users}/{usage.max_users} · Productos: {usage.products}/{usage.max_products}
+                                            </p>
+                                            <button type="button" onClick={openBillingPortal} disabled={billingLoading}
+                                                className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-bold disabled:opacity-60">
+                                                {billingLoading ? 'Abriendo...' : 'Gestionar suscripción'}
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    {isAdmin && (
+                                        <div className="md:col-span-2 p-6 rounded-2xl bg-blue-500/5 border border-blue-500/20">
+                                            <label className={labelClass}>Invitar usuario</label>
+                                            <form onSubmit={sendInvite} className="flex flex-col sm:flex-row gap-3">
+                                                <input type="email" required value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)}
+                                                    className={inputClass} placeholder="correo@empresa.com" />
+                                                <select value={inviteRole} onChange={(e) => setInviteRole(e.target.value)} className={inputClass}>
+                                                    <option value="CAJERO">Cajero</option>
+                                                    <option value="SUPERVISOR">Supervisor</option>
+                                                    <option value="ADMIN">Admin</option>
+                                                </select>
+                                                <button type="submit" disabled={inviteLoading}
+                                                    className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold whitespace-nowrap">
+                                                    {inviteLoading ? 'Enviando...' : 'Invitar'}
+                                                </button>
+                                            </form>
+                                        </div>
+                                    )}
                                 </div>
                             </form>
                         </div>

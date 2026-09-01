@@ -30,7 +30,7 @@ api.interceptors.response.use(
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
             localStorage.removeItem('token');
             // Only redirect if NOT on the login page to avoid infinite loops or hangs during login attempts
-            if (window.location.pathname !== '/login') {
+            if (!['/login', '/signup', '/'].includes(window.location.pathname)) {
                 window.location.href = '/login';
             }
         }
@@ -46,16 +46,38 @@ export const authApi = {
         params.append('password', password);
 
         const response = await api.post('auth/login/access-token', params, {
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         });
+        if (response.data.refresh_token) {
+            localStorage.setItem('refresh_token', response.data.refresh_token);
+        }
+        return response.data;
+    },
+    refresh: async () => {
+        const refreshToken = localStorage.getItem('refresh_token');
+        if (!refreshToken) throw new Error('No refresh token');
+        const response = await api.post('auth/refresh', { refresh_token: refreshToken });
+        localStorage.setItem('token', response.data.access_token);
+        localStorage.setItem('refresh_token', response.data.refresh_token);
         return response.data;
     },
     getMe: async () => {
         const response = await api.get('users/me');
         return response.data;
     }
+};
+
+export const billingApi = {
+    getUsage: () => api.get('organizations/usage'),
+    getPlans: () => api.get('organizations/plans'),
+    checkout: (plan) => api.post('billing/checkout', { plan }),
+    portal: () => api.post('billing/portal'),
+};
+
+export const invitationsApi = {
+    list: () => api.get('invitations/'),
+    create: (data) => api.post('invitations/', data),
+    accept: (data) => api.post('invitations/accept', data),
 };
 
 // Fetchs para el CRUD completo y alertas de los productos
